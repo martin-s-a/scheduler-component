@@ -60,6 +60,7 @@ class ScheduleEntry:
     weekdays = attr.ib(type=list, default=[])
     start_date = attr.ib(type=str, default=None)
     end_date = attr.ib(type=str, default=None)
+    repeat_yearly = attr.ib(type=bool, default=False)
     timeslots = attr.ib(type=[TimeslotEntry], default=[])
     repeat_type = attr.ib(type=str, default=None)
     name = attr.ib(type=str, default=None)
@@ -171,6 +172,7 @@ class ScheduleStorage:
                         weekdays=entry[const.ATTR_WEEKDAYS],
                         start_date=entry[const.ATTR_START_DATE],
                         end_date=entry[const.ATTR_END_DATE],
+                        repeat_yearly=entry.get(const.ATTR_REPEAT_YEARLY, False),
                         timeslots=entry[const.ATTR_TIMESLOTS],
                         repeat_type=entry[const.ATTR_REPEAT_TYPE],
                         name=entry[ATTR_NAME],
@@ -214,6 +216,7 @@ class ScheduleStorage:
                 const.ATTR_WEEKDAYS: entry.weekdays,
                 const.ATTR_START_DATE: entry.start_date,
                 const.ATTR_END_DATE: entry.end_date,
+                const.ATTR_REPEAT_YEARLY: entry.repeat_yearly,
                 const.ATTR_REPEAT_TYPE: entry.repeat_type,
                 ATTR_NAME: entry.name,
                 const.ATTR_ENABLED: entry.enabled,

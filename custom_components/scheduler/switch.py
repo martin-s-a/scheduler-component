@@ -200,12 +200,13 @@ class ScheduleEntity(ToggleEntity):
 
             if self._current_slot == (
                 len(self.schedule[const.ATTR_TIMESLOTS]) - 1
-            ) and (
+            ) and not self.schedule[const.ATTR_REPEAT_YEARLY] and (
                 not self.schedule[const.ATTR_END_DATE]
                 or not date_in_future(self.schedule[const.ATTR_END_DATE])
             ):
                 # last timeslot has ended
                 # in case period is assigned, the end date must have been reached as well
+                # a yearly period never ends, it waits for the next year
 
                 if self.schedule[const.ATTR_REPEAT_TYPE] == const.REPEAT_TYPE_PAUSE:
                     _LOGGER.debug(

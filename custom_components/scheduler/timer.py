@@ -1,5 +1,6 @@
 import logging
 import datetime
+import calendar
 
 
 import homeassistant.util.dt as dt_util
@@ -46,6 +47,25 @@ def days_until_date(date_string: str, ts: datetime.datetime):
     return diff.days
 
 
+def date_in_year(date: datetime.date, year: int) -> datetime.date:
+    """move a date to another year, Feb 29 becomes Feb 28 in a non-leap year"""
+    if date.month == 2 and date.day == 29 and not calendar.isleap(year):
+        return datetime.date(year, 2, 28)
+    return date.replace(year=year)
+
+
+def yearly_period(start_date: str, end_date: str, day: datetime.date):
+    """find the yearly period that contains a day, or else the first one after it"""
+    start = dt_util.parse_date(start_date)
+    end = dt_util.parse_date(end_date)
+    # a period such as Nov 1 - Mar 31 ends in the year after it starts
+    wraps = (end.month, end.day) < (start.month, start.day)
+    for year in range(day.year - 1, day.year + 2):
+        period_end = date_in_year(end, year + 1 if wraps else year)
+        if period_end >= day:
+            return (date_in_year(start, year).isoformat(), period_end.isoformat())
+
+
 def find_closest_from_now(date_arr: list):
     now = dt_util.as_local(dt_util.utcnow())
     minimum = None
@@ -70,6 +90,7 @@ class TimerHandler:
         self._weekdays = []
         self._start_date = None
         self._end_date = None
+        self._repeat_yearly = False
         self._timeslots = []
         self._timer = None
         self._next_trigger = None
@@ -101,6 +122,7 @@ class TimerHandler:
         self._weekdays = data[const.ATTR_WEEKDAYS]
         self._start_date = data[const.ATTR_START_DATE]
         self._end_date = data[const.ATTR_END_DATE]
+        self._repeat_yearly = data[const.ATTR_REPEAT_YEARLY]
         self._timeslots = [
             dict((k, slot[k]) for k in [const.ATTR_START, const.ATTR_STOP] if k in slot)
             for slot in data[const.ATTR_TIMESLOTS]
@@ -383,17 +405,22 @@ class TimerHandler:
             (ts - now).total_seconds() > 0 or iteration > 0
         ):
 
-            if self._start_date and days_until_date(self._start_date, ts) > 0:
+            start_date = self._start_date
+            end_date = self._end_date
+            if self._repeat_yearly and start_date and end_date:
+                start_date, end_date = yearly_period(start_date, end_date, ts.date())
+
+            if start_date and days_until_date(start_date, ts) > 0:
                 # start date is in the future, jump to start date
                 end_of_day = ts.replace(hour=0, minute=0, second=0, microsecond=0) + datetime.timedelta(days=1)
-                days_delta = days_until_date(self._start_date, end_of_day)
+                days_delta = days_until_date(start_date, end_of_day)
                 if days_delta:
                     time_delta = datetime.timedelta(days=days_delta)
 
-            elif self._end_date and days_until_date(self._end_date, ts) < 0:
+            elif end_date and days_until_date(end_date, ts) < 0:
                 # end date is in the past, jump to end date
                 time_delta = datetime.timedelta(
-                    days=days_until_date(self._end_date, ts)
+                    days=days_until_date(end_date, ts)
                 )
                 reverse_direction = True
 

@@ -73,6 +73,7 @@ ATTR_TAGS = "tags"
 ATTR_SCHEDULES = "schedules"
 ATTR_START_DATE = "start_date"
 ATTR_END_DATE = "end_date"
+ATTR_REPEAT_YEARLY = "repeat_yearly"
 
 EVENT_TIMER_FINISHED = "scheduler_timer_finished"
 EVENT_TIMER_UPDATED = "scheduler_timer_updated"
@@ -174,6 +175,7 @@ ADD_SCHEDULE_SCHEMA = vol.Schema(
         ),
         vol.Optional(ATTR_START_DATE, default=None): validate_date,
         vol.Optional(ATTR_END_DATE, default=None): validate_date,
+        vol.Optional(ATTR_REPEAT_YEARLY, default=False): cv.boolean,
         vol.Required(ATTR_TIMESLOTS): vol.All(
             cv.ensure_list, vol.Length(min=1), [TIMESLOT_SCHEMA]
         ),
@@ -208,6 +210,7 @@ EDIT_SCHEDULE_SCHEMA = vol.Schema(
         ),
         vol.Optional(ATTR_START_DATE, default=None): validate_date,
         vol.Optional(ATTR_END_DATE, default=None): validate_date,
+        vol.Optional(ATTR_REPEAT_YEARLY): cv.boolean,
         vol.Optional(ATTR_TIMESLOTS): vol.All(
             cv.ensure_list, vol.Length(min=1), [TIMESLOT_SCHEMA]
         ),

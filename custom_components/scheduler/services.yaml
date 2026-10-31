@@ -64,6 +64,13 @@ add:
       required: false
       selector:
         object:
+    repeat_yearly:
+      name: Repeat yearly
+      description: Repeat the period between start date and end date every year, ignoring the year of both dates
+      example: 'true'
+      required: false
+      selector:
+        boolean:
     timeslots:
       name: Timeslots
       description: list of timeslots with their actions and optionally conditions (should be kept the same for all timeslots)
@@ -124,6 +131,13 @@ edit:
       required: false
       selector:
         object:
+    repeat_yearly:
+      name: Repeat yearly
+      description: Repeat the period between start date and end date every year, ignoring the year of both dates
+      example: 'true'
+      required: false
+      selector:
+        boolean:
     timeslots:
       name: Timeslots
       description: list of timeslots with their actions and optionally conditions (should be kept the same for all timeslots)
